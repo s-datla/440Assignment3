@@ -15,6 +15,8 @@ class digitClass:
         self.initialProb = 0.0
         self.testHigh = float("-inf")
         self.testLow = float(0)
+        self.maxImage = [[' ' for j in range(28)] for k in range(28)]
+        self.minImage = [[' ' for j in range(28)] for k in range(28)]
 
     def countPixels(self,readLines):
         for i in range(28):
@@ -54,16 +56,34 @@ class digitClass:
                     currentProb += math.log(self.prob[i][j][1])
                 elif text[j] == '#':
                     currentProb += math.log(self.prob[i][j][1])
+        if currentProb > self.testHigh:
+            self.maxImage = readLines
+            self.testHigh = currentProb
+        if currentProb < self.testLow:
+            self.minImage = readLines
+            self.testLow = currentProb
         return currentProb
 
-    def printLabel(self):
-        print self.label
+
+    def printHighLow(self):
+        print "Image with Highest Posterier Probability (Log) for Digit : " + str(self.label)
+        print self.testHigh
+        for i in range(28):
+            print self.maxImage[i]
+        print "Image with Lowest Posterior Probability (Log) for Digit : " + str(self.label)
+        print self.testLow
+        for i in range(28):
+            print self.minImage[i]
 
     def printCount(self):
-        print self.count
+        for i in range(28):
+            print self.count[i]
 
     def printProb(self):
         print self.prob
+
+    def getPixelProb(self,x,y,val):
+        return self.prob[x][y][val]
 
 if __name__ == "__main__":
     digitClass(sys.argv[0],sys.argv[1],sys.argv[2])
