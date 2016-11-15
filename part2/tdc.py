@@ -1,11 +1,11 @@
-#!/usr/bin/env python3
-
 import argparse
+import math
 from collections import defaultdict
 
 class tdc:
 
     # inits and in doing so trains the class on ftrain
+    # 1 for Positive, -1 for Negative
     def __init__(self, ftrain):
         self.data = { '1' :  defaultdict(int), '-1':  defaultdict(int)}
         self.prob = { '1' :  defaultdict(float), '-1':  defaultdict(float)}
@@ -18,11 +18,11 @@ class tdc:
 
                 for i in info[1:]:
                     word, val = tuple(i.split(':'))
-                    self.data[ label ][ word ] += val
+                    self.data[ label ][ word ] += int(val)
 
         for label in self.data:
             nwords = 0
-            wdict = data[label]
+            wdict = self.data[label]
             # get number of words in label
             for word in wdict:
                 nwords += wdict[ word ]
@@ -41,8 +41,8 @@ class tdc:
         info = inp.split()
         for i in info:
             word, val = tuple(i.split(':'))
-            prob_1 *= (self.prob[ '1' ][ word ])^val
-            prob_n1 *= (self.prob[ '-1' ][ word ])^val
+            prob_1 *= math.pow((self.prob[ '1' ][ word ]), float(val))
+            prob_n1 *= math.pow((self.prob[ '-1' ][ word ]), float(val))
 
         if prob_1 > prob_n1:
             return '1'
@@ -56,7 +56,7 @@ class tdc:
         prob_1 = 0.5
         prob_n1 = 0.5
 
-        info = inp.split()
+        info = input.split()
         for i in info:
             word, val = tuple(i.split(':'))
             if self.data['1'][word] == 0:
@@ -79,7 +79,8 @@ def parse_arguments():
     return args.train, args.test
 
 if __name__ == "__main__":
-    ftrain, ftest = parse_arguments()
+    ftrain = "E:\Git\\440Assignment3\part2\\fisher_2topic\\fisher_train_2topic.txt"
+    ftest = "E:\Git\\440Assignment3\part2\\fisher_2topic\\fisher_test_2topic.txt"#parse_arguments()
     tester = tdc(ftest)
 
     rate_norm = 0.0
@@ -91,7 +92,7 @@ if __name__ == "__main__":
             count += 1
 
             line = line.strip()
-            label, rest = tuple(line.split(num=1))
+            label, rest = tuple(line.split(' ', 1))
 
             if label == tester.test_input(rest):
                 rate_norm += 1

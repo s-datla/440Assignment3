@@ -1,6 +1,6 @@
 import math
 import argparse
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 class documentClassifier:
 	# Inits and trains class
@@ -10,6 +10,8 @@ class documentClassifier:
 		self.probability = {'1': defaultdict(float), '-1': defaultdict(float)}
 		self.priors = {'1': 0.0, '-1': 0.0}
 		self.vocabulary = []
+		self.positiveLikelihood = defaultdict(float)
+		self.negativeLikelihood = defaultdict(float)
 
 		total = 0
 		with open(trainingFile, 'r') as file:
@@ -68,24 +70,16 @@ class documentClassifier:
 			if word in self.vocabulary:
 				for label in label_likelihood:
 					label_likelihood[str(label)] += (float(value) * math.log10(self.probability[label][word]))
+					if label == '1':
+						self.positiveLikelihood[word] += (float(value) * math.log10(self.probability[label][word]))
+					else:
+						self.negativeLikelihood[word] += (float(value) * math.log10(self.probability[label][word]))
 
 		# Case of equal probabilities?
 		if label_likelihood['1'] > label_likelihood['-1']:
 			return 1
 		else:
 			return -1
-
-	def bernoulliBayes(self, fileData):
-		# Compute breakdown of labels and their probabilities
-		label_likelihood = {'1': 0.0, '-1': 0.0}
-
-		for i in self.priors:
-			label_likelihood[i] = self.priors[i]
-
-		data = fileData.split()
-
-		
-
 
 def parse_arguments():
 	parser = argparse.ArgumentParser(description="Run Text Document Classifier")
@@ -100,20 +94,25 @@ if __name__ == "__main__":
 	tester = documentClassifier(trainingFile)
 
 	rateMultinomial = 0.0
-	rateBernoulli = 0.0
 	total = 0
 
 	with open(testFile, 'r') as file:
 		for line in file:
 			label, rest = line.split(' ', 1)
 			total += 1
-			# print label
-			# print tester.multinomialBayes(line)
 			if label == str(tester.multinomialBayes(line)):
 				rateMultinomial += 1
 
-	print rateMultinomial
 	rateMultinomial /= float(total) * 0.01
 
 	print 'Num Files: ' + str(total)
 	print 'Accuracy Multinomial: ' + str(rateMultinomial)
+
+	d = Counter(tester.positiveLikelihood)
+	top10Positive = d.most_common(10)
+	d = Counter(tester.negativeLikelihood)
+	top10Negative = d.most_common(10)
+	print "\nTop 10 Positive Likelihoods"
+	print top10Positive
+	print "\nTop 10 Negative Likelihoods"
+	print top10Negative
