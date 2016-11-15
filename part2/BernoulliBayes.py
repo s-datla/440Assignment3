@@ -57,11 +57,12 @@ class documentClassifier:
 				totalNumLabelWords += 1
 
 			for word in wordDict:
-				self.probability[label][word] = float(wordDict[word] + 10) / float(totalNumLabelWords + 10 * len(self.vocabulary))
+				self.probability[label][word] = wordDict[word] 
+				#self.probability[label][word] = (float)(self.data[label][word] + 10) / float(totalNumLabelWords) #float(wordDict[word] + 10) / float(totalNumLabelWords + 10 * len(self.vocabulary))
 
 			for word in self.vocabulary:
 				if word not in wordDict:
-					self.probability[label][word] = float(10) / float(totalNumLabelWords + 10 * len(self.vocabulary))
+					self.probability[label][word] = 2000#float(10) / float(totalNumLabelWords + 10 * len(self.vocabulary))
 
 
 	# Return 1 for Positive and -1 for Negative, 0 for Confused
@@ -90,13 +91,11 @@ class documentClassifier:
 						if word in self.negativeVocab:
 							self.negativeVocab.remove(word)
 
-		print label_likelihood.values()
 		for word in self.positiveVocab:
 			label_likelihood['1'] += float(1 - math.log10(self.probability['1'][word]))
 		for word in self.negativeVocab:
 			label_likelihood['-1'] += float(1 - math.log10(self.probability['-1'][word]))
 
-		print data[0], " ", label_likelihood.values()
 		# Case of equal probabilities?
 		if label_likelihood['1'] > label_likelihood['-1']:
 			return 1
@@ -157,7 +156,7 @@ if __name__ == "__main__":
 	print 'Num Files: ' + str(total)
 	print 'Accuracy 1 Label: ' + str(rateOne)
 	print 'Accuracy -1 Label: ' + str(rateMinus)
-	print 'Accuracy Multinomial: ' + str(rateBernoulli)
+	print 'Accuracy Bernoulli: ' + str(rateBernoulli)
 
 	print "Confusion Matrix: "
 	for i in range(len(confusionMatrix)):
