@@ -1,5 +1,6 @@
 import math
 import argparse
+import sys
 from collections import defaultdict, Counter
 
 class documentClassifier:
@@ -39,7 +40,7 @@ class documentClassifier:
 		Calculation is done as follows:
 			(occurrence of word in label + 1) / (all words in label + length of vocab)
 			+1 and + length of vocab is done for Laplacian smoothing
-		''' 
+		'''
 		for label in self.data:
 			totalNumLabelWords = 0
 			wordDict = self.data[label]
@@ -95,18 +96,54 @@ if __name__ == "__main__":
 
 	rateMultinomial = 0.0
 	total = 0
+	rateOne = 0.0
+	totalOne = 0
+	rateMinus = 0.0
+	totalMinus = 0
+	confusionMatrix = [[0 for i in range(2)] for j in range(2)]
 
 	with open(testFile, 'r') as file:
 		for line in file:
 			label, rest = line.split(' ', 1)
 			total += 1
+			if label == '1':
+				totalOne += 1
+			elif label == '-1':
+				totalMinus += 1
 			if label == str(tester.multinomialBayes(line)):
 				rateMultinomial += 1
+				if label =='1':
+					rateOne += 1
+					confusionMatrix[0][0] += 1
+				elif label == '-1':
+					rateMinus += 1
+					confusionMatrix[1][1] += 1
+			else:
+				if label == '1':
+					confusionMatrix[0][1] += 1
+				elif label == '-1':
+					confusionMatrix[1][0] += 1
+
+	for i in range(len(confusionMatrix)):
+		confusionMatrix[i][0] /= float(totalOne)
+		confusionMatrix[i][1] /= float(totalMinus)
+
 
 	rateMultinomial /= float(total) * 0.01
+	rateOne /= float(totalOne) * 0.01
+	rateMinus /= float(totalMinus) * 0.01
 
 	print 'Num Files: ' + str(total)
+	print 'Accuracy 1 Label: ' + str(rateOne)
+	print 'Accuracy -1 Label: ' + str(rateMinus)
 	print 'Accuracy Multinomial: ' + str(rateMultinomial)
+
+	print "Confusion Matrix: "
+	for i in range(len(confusionMatrix)):
+		for j in range(len(confusionMatrix)):
+			sys.stdout.write(" {0:.4f} ".format(confusionMatrix[i][j]))
+		sys.stdout.write("\n")
+		sys.stdout.flush()
 
 	d = Counter(tester.positiveLikelihood)
 	top10Positive = d.most_common(10)
