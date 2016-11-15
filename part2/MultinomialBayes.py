@@ -116,3 +116,17 @@ if __name__ == "__main__":
 	print top10Positive
 	print "\nTop 10 Negative Likelihoods"
 	print top10Negative
+
+	oddsRatioPTN = defaultdict(float)
+	for i in tester.positiveLikelihood:
+		oddsRatioPTN[i] = tester.positiveLikelihood[i] / tester.negativeLikelihood[i]
+	d = Counter(oddsRatioPTN)
+	print "\n Top 10 Positive / Negative Odds Ratio"
+	print d.most_common(10)
+
+	oddsRatioNTP = defaultdict(float)
+	for i in tester.negativeLikelihood:
+		oddsRatioNTP[i] = tester.negativeLikelihood[i] / tester.positiveLikelihood[i]
+	d = Counter(oddsRatioNTP)
+	print "\n Top 10 Negative / Positive Odds Ratio"
+	print d.most_common(10)
